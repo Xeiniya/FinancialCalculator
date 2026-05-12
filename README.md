@@ -1,76 +1,100 @@
-This is a Kotlin Multiplatform project targeting Android, iOS, Web, Desktop (JVM).
+# FinancialCalculator — Финансовый калькулятор
 
-* [/composeApp](./composeApp/src) is for code that will be shared across your Compose Multiplatform applications.
-  It contains several subfolders:
-  - [commonMain](./composeApp/src/commonMain/kotlin) is for code that’s common for all targets.
-  - Other folders are for Kotlin code that will be compiled for only the platform indicated in the folder name.
-    For example, if you want to use Apple’s CoreCrypto for the iOS part of your Kotlin app,
-    the [iosMain](./composeApp/src/iosMain/kotlin) folder would be the right place for such calls.
-    Similarly, if you want to edit the Desktop (JVM) specific part, the [jvmMain](./composeApp/src/jvmMain/kotlin)
-    folder is the appropriate location.
+Кроссплатформенное приложение на Compose Multiplatform — расчёт сложных процентов с визуализацией роста капитала. Поддержка Android, iOS, Linux и Web.
 
-* [/iosApp](./iosApp/iosApp) contains iOS applications. Even if you’re sharing your UI with Compose Multiplatform,
-  you need this entry point for your iOS app. This is also where you should add SwiftUI code for your project.
+## Основные возможности
 
-### Build and Run Android Application
+- Ввод начальной суммы, процентной ставки, срока
+- Выбор периодичности капитализации (ежемесячно/ежеквартально/ежегодно)
+- Расчёт итоговой суммы и общей прибыли
+- Визуализация роста капитала в виде графика (Canvas API)
+- Валидация ввода данных с сообщениями об ошибках
+- Локализация: русский, английский
+- Анимация элементов интерфейса
+- Обработка исключительных ситуаций
 
-To build and run the development version of the Android app, use the run configuration from the run widget
-in your IDE’s toolbar or build it directly from the terminal:
-- on macOS/Linux
-  ```shell
-  ./gradlew :composeApp:assembleDebug
-  ```
-- on Windows
-  ```shell
-  .\gradlew.bat :composeApp:assembleDebug
-  ```
+## Технологии
 
-### Build and Run Desktop (JVM) Application
+| Компонент          | Технология                              |
+|--------------------|-----------------------------------------|
+| Фреймворк          | Compose Multiplatform 1.10.3            |
+| Язык               | Kotlin 2.3.21                           |
+| UI                 | Material 3 (Compose)                    |
+| Графика            | Canvas API (собственная реализация)      |
+| Архитектура        | MVVM (ViewModel + StateFlow)            |
+| Математика         | kotlin.math (pow)                       |
+| Сериализация       | kotlinx.serialization 1.7.3             |
+| Тесты              | kotlin.test + kotlinx.coroutines.test   |
+| CI/CD              | GitHub Actions                          |
 
-To build and run the development version of the desktop app, use the run configuration from the run widget
-in your IDE’s toolbar or run it directly from the terminal:
-- on macOS/Linux
-  ```shell
-  ./gradlew :composeApp:run
-  ```
-- on Windows
-  ```shell
-  .\gradlew.bat :composeApp:run
-  ```
+## Установка и запуск
 
-### Build and Run Web Application
+```bash
+git clone https://github.com/Xeiniya/FinancialCalculator.git
+cd FinancialCalculator
 
-To build and run the development version of the web app, use the run configuration from the run widget
-in your IDE's toolbar or run it directly from the terminal:
-- for the Wasm target (faster, modern browsers):
-  - on macOS/Linux
-    ```shell
-    ./gradlew :composeApp:wasmJsBrowserDevelopmentRun
-    ```
-  - on Windows
-    ```shell
-    .\gradlew.bat :composeApp:wasmJsBrowserDevelopmentRun
-    ```
-- for the JS target (slower, supports older browsers):
-  - on macOS/Linux
-    ```shell
-    ./gradlew :composeApp:jsBrowserDevelopmentRun
-    ```
-  - on Windows
-    ```shell
-    .\gradlew.bat :composeApp:jsBrowserDevelopmentRun
-    ```
+# Android
+./gradlew composeApp:assembleDebug
 
-### Build and Run iOS Application
+# Desktop
+./gradlew composeApp:run
 
-To build and run the development version of the iOS app, use the run configuration from the run widget
-in your IDE’s toolbar or open the [/iosApp](./iosApp) directory in Xcode and run it from there.
+# Web
+./gradlew composeApp:wasmJsBrowserRun
+```
 
----
+## Тестирование
 
-Learn more about [Kotlin Multiplatform](https://www.jetbrains.com/help/kotlin-multiplatform-dev/get-started.html),
-[Compose Multiplatform](https://github.com/JetBrains/compose-multiplatform/#compose-multiplatform),
-[Kotlin/Wasm](https://kotl.in/wasm/)…
+```bash
+# Все тесты
+./gradlew composeApp:allTests
 
-We would appreciate your feedback on Compose/Web and Kotlin/Wasm in the public Slack channel [#compose-web](https://slack-chats.kotlinlang.org/c/compose-web).
-If you face any issues, please report them on [YouTrack](https://youtrack.jetbrains.com/newIssue?project=CMP).
+# Только модульные тесты
+./gradlew composeApp:desktopTest
+```
+
+## Сборка под платформы
+
+```bash
+# Android APK
+./gradlew composeApp:assembleDebug
+
+# Desktop дистрибутив
+./gradlew composeApp:createDistributable
+
+# WebAssembly
+./gradlew composeApp:wasmJsBrowserDistribution
+```
+
+## Структура проекта
+
+```
+composeApp/src/
+├── commonMain/kotlin/com/example/financialcalculator/
+│   ├── model/              # CalculatorModel.kt — логика расчётов
+│   ├── viewmodel/          # CalculatorViewModel.kt — MVVM
+│   └── ui/                 # App.kt, CalculatorScreen.kt — Compose UI
+│       └── theme/          # Theme.kt — темы
+├── androidMain/            # Android-специфичный код
+├── iosMain/                # iOS-специфичный код
+├── desktopMain/            # Desktop (JVM) код
+├── wasmJsMain/             # Web (WebAssembly) код
+└── commonTest/             # Общие тесты
+```
+
+## Формула расчёта
+
+```
+FV = PV × (1 + r/n)^(n×t)
+
+где:
+FV — будущая стоимость
+PV — начальная сумма
+r  — годовая ставка (в десятичных)
+n  — периодов капитализации в год
+t  — срок в годах
+```
+
+## Author
+
+Ксения Николаева
